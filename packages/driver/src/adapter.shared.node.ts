@@ -3,6 +3,7 @@ let H: (msg: Uint8Array) => Promise<Uint8Array>;
 let HMAC: (key: Uint8Array, msg: Uint8Array) => Promise<Uint8Array>;
 
 if (typeof crypto === "undefined") {
+  //@ts-ignore
   let nodeCrypto;
   try {
     // tslint:disable-next-line:no-var-requires
@@ -13,6 +14,7 @@ if (typeof crypto === "undefined") {
 
   randomBytes = (size: number): Promise<Uint8Array> => {
     return new Promise((resolve, reject) => {
+      //@ts-ignore
       nodeCrypto.randomBytes(size, (err: Error | null, buf: Buffer) => {
         if (err) {
           reject(err);
@@ -24,12 +26,14 @@ if (typeof crypto === "undefined") {
   };
 
   H = async (msg: Uint8Array): Promise<Uint8Array> => {
+    //@ts-ignore
     const sign = nodeCrypto.createHash("sha256");
     sign.update(msg);
     return sign.digest();
   };
 
   HMAC = async (key: Uint8Array, msg: Uint8Array): Promise<Uint8Array> => {
+    //@ts-ignore
     const hm = nodeCrypto.createHmac("sha256", key);
     hm.update(msg);
     return hm.digest();

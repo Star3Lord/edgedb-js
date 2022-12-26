@@ -35,7 +35,7 @@ export async function HTTPSCRAMAuth(
     clientNonce,
     username
   );
-
+  //@ts-ignore
   let FETCH;
   try {
     // @ts-ignore
@@ -43,6 +43,7 @@ export async function HTTPSCRAMAuth(
   } catch (e) {
     throw new Error("fetch module not found");
   }
+  //@ts-ignore
   const serverFirstRes = await FETCH(authUrl, {
     headers: {
       Authorization: `SCRAM-SHA-256 data=${utf8ToB64(clientFirst)}`
@@ -77,7 +78,7 @@ export async function HTTPSCRAMAuth(
     serverFirst,
     serverNonce
   );
-
+  //@ts-ignore
   const serverFinalRes = await FETCH(authUrl, {
     headers: {
       Authorization: `SCRAM-SHA-256 sid=${sid}, data=${utf8ToB64(clientFinal)}`
