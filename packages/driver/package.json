@@ -11,6 +11,9 @@
     "type": "git",
     "url": "https://github.com/Star3Lord/edgedb-js.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.node.js",
   "types": "./dist/index.node.d.ts",
   "license": "Apache-2.0",
