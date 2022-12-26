@@ -36,8 +36,13 @@ export async function HTTPSCRAMAuth(
     username
   );
 
-  // @ts-ignore
-  const FETCH = typeof fetch === "undefined" ? require("node-fetch") : fetch;
+  let FETCH;
+  try {
+    // @ts-ignore
+    FETCH = typeof fetch === "undefined" ? require("node-fetch") : fetch;
+  } catch (e) {
+    throw new Error("fetch module not found");
+  }
   const serverFirstRes = await FETCH(authUrl, {
     headers: {
       Authorization: `SCRAM-SHA-256 data=${utf8ToB64(clientFirst)}`

@@ -3,8 +3,13 @@ let H: (msg: Uint8Array) => Promise<Uint8Array>;
 let HMAC: (key: Uint8Array, msg: Uint8Array) => Promise<Uint8Array>;
 
 if (typeof crypto === "undefined") {
-  // tslint:disable-next-line:no-var-requires
-  const nodeCrypto = require("crypto");
+  let nodeCrypto;
+  try {
+    // tslint:disable-next-line:no-var-requires
+    nodeCrypto = require("crypto");
+  } catch (e) {
+    throw new Error("crypto module not found");
+  }
 
   randomBytes = (size: number): Promise<Uint8Array> => {
     return new Promise((resolve, reject) => {
