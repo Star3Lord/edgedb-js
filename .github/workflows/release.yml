@@ -36,7 +36,7 @@ jobs:
         run: cp README.md packages/driver/README.md
 
       - id: publish_driver
-        name: Publish 'edgedb' to NPM
+        name: Publish '@star3lord/edgedb' to NPM
         uses: JS-DevTools/npm-publish@v1
         with:
           package: packages/driver/package.json
@@ -52,89 +52,3 @@ jobs:
         if: steps.publish_driver.outputs.type == 'none'
         run: |
           echo "Version in package.json has not changed. Skipping."
-
-      # Generate
-
-      - id: publish_generate
-        name: Publish '@edgedb/generate' to NPM
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          package: packages/generate/package.json
-          token: ${{ secrets.NPM_TOKEN }}
-          dry-run: false
-
-      - name: If publish '@edgedb/generate'
-        if: steps.publish_generate.outputs.type != 'none'
-        run: |
-          echo "Published ${{ steps.publish.outputs.type }} version: ${{ steps.publish.outputs.version }}"
-
-      - name: If '@edgedb/generate' version unchanged
-        if: steps.publish_generate.outputs.type == 'none'
-        run: |
-          echo "Version in package.json has not changed. Skipping."
-
-      # Changelogs
-
-      - name: Changelog Vars
-        run: |
-          echo "last_tag=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-          echo "curr_commit=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
-      - name: Build 'edgedb' Changelog
-        id: github_driver_release
-        uses: mikepenz/release-changelog-builder-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          fromTag: "${{ env.last_tag }}"
-          toTag: ${{ github.ref }}
-          commitMode: true
-          configurationJson: |
-            {
-              "template": "## Commits:\n\n#{{UNCATEGORIZED}}",
-              "pr_template": "- #{{MERGE_SHA}} #{{TITLE}}",
-              "categories": [],
-            }
-
-      - name: Create 'edgedb' Release
-        if: steps.publish_driver.outputs.type != 'none'
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.publish_driver.outputs.version }}
-          release_name: edgedb-js v${{ steps.publish_driver.outputs.version }}
-          commitish: ${{ github.ref }}
-          body: ${{steps.github_driver_release.outputs.changelog}}
-          draft: true
-          prerelease: false
-
-
-      - name: Build '@edgedb/generate' Changelog
-        id: github_generate_release
-        uses: mikepenz/release-changelog-builder-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          fromTag: "${{ env.last_tag }}"
-          toTag: ${{ github.ref }}
-          commitMode: true
-          configurationJson: |
-            {
-              "template": "## Commits:\n\n#{{UNCATEGORIZED}}",
-              "pr_template": "- #{{MERGE_SHA}} #{{TITLE}}",
-              "categories": [],
-            }
-
-      - name: Create '@edgedb/generate' Release
-        if: steps.publish_generate.outputs.type != 'none'
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: generate-v${{ steps.publish_generate.outputs.version }}
-          release_name: \@edgedb/generate v${{ steps.publish_generate.outputs.version }}
-          commitish: ${{ github.ref }}
-          body: ${{steps.github_generate_release.outputs.changelog}}
-          draft: true
-          prerelease: false
